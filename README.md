@@ -6,7 +6,7 @@ Arduino core for WEMOS XI Boards
 ### Installation
 - Install Arduino IDE
 - Go to Arduino IDE installation directory
-- Clone this repository into *hardware/wemos/XI* directory (or clone it elsewhere and create a symlink)
+- Clone this repository into **hardware/wemos/XI** directory (or clone it elsewhere and create a symlink)
 ```bash
 cd hardware
 mkdir wemos
