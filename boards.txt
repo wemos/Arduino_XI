@@ -1,0 +1,23 @@
+# See: http://code.google.com/p/arduino/wiki/Platforms
+
+##############################################################
+
+xi.name= WEMOS XI
+xi.upload.tool=avrdude
+xi.upload.protocol=arduino
+xi.upload.maximum_size=29696
+xi.upload.speed=57600
+xi.bootloader.tool=avrdude
+xi.bootloader.high_fuses=0xff
+xi.bootloader.low_fuses=0xff
+xi.bootloader.extended_fuses=0x07
+xi.bootloader.path=lgt8fx8e
+xi.bootloader.file=lgt8fx8e\optiboot_lgt8f328d.hex
+xi.bootloader.unlock_bits=0x3f
+xi.bootloader.lock_bits=0x3f
+xi.build.mcu=atmega328p
+xi.build.f_cpu=16000000L
+xi.build.core=lgt8f
+xi.build.variant=lgt8fx8e
+xi.build.board=AVR_LARDU_328E
+
