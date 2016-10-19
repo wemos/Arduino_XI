@@ -1,2 +1,2 @@
 # Arduino_XI
-WEMOS XI Board core for Arduino
+Arduino core for WEMOS XI Board 
