@@ -1,7 +1,7 @@
 Arduino core for WEMOS XI Boards 
 ===========================================
 ### WEMOS XI Boards
-- WEMOS XI
+- [WEMOS XI](https://wemos.cc "WEMOS XI")
 
 ### Installation
 - Install Arduino IDE
