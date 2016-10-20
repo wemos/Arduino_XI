@@ -1,8 +1,17 @@
 # See: http://code.google.com/p/arduino/wiki/Platforms
 
-lgtmkii.name=LGTSWD mkII as ISP
+lgtmkii.name=LGTSWD mkII as ISP[WEMOS XI]
 lgtmkii.communication=usb
 lgtmkii.protocol=jtag2isp
 lgtmkii.program.protocol=jtag2isp
 lgtmkii.program.tool=avrdude
 lgtmkii.program.extra_params=-Pusb
+
+arduinoasisp_xi.name=Arduino as ISP[WEMOS XI]
+arduinoasisp_xi.communication=serial
+arduinoasisp_xi.protocol=stk500v1
+arduinoasisp_xi.speed=19200
+arduinoasisp_xi.program.protocol=stk500v1
+arduinoasisp_xi.program.speed=19200
+arduinoasisp_xi.program.tool=avrdude
+arduinoasisp_xi.program.extra_params=-P{serial.port} -b{program.speed}
