@@ -120,6 +120,8 @@ void detachInterrupt(uint8_t);
 void setup(void);
 void loop(void);
 
+void sysClock(uint8_t clk);
+
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
 
