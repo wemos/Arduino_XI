@@ -120,6 +120,8 @@ void detachInterrupt(uint8_t);
 void setup(void);
 void loop(void);
 
+#define EXT_CLOCK 1
+#define IN_CLOCK 0
 void sysClock(uint8_t clk);
 
 // Get the bit location within the hardware port of the given virtual pin.
