@@ -10,7 +10,7 @@
 # Methods and Functions (KEYWORD2)
 #######################################
 digitalToggle		KEYWORD2
-
+sysClock	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
