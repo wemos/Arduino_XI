@@ -76,6 +76,8 @@ int main(void)
 
 #if defined(__LGT8F88A__) || defined(__LGT8F88ES__) || defined(__LGT8FX8E__)
 	lgt8fx8x_init();
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, LOW); 
 #endif	
 
 	init();
