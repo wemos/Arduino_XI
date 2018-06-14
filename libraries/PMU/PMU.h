@@ -73,13 +73,14 @@ private:
 	uint8_t clkpr_reg;
 	uint8_t wdtcr_reg;
 	uint8_t ldocr_reg;
-	uint8_t sreg_reg;
+#if defined(__LGT8FX8E__)
 	uint8_t adcsra_reg;
 	uint8_t ddrd_reg;
 	uint8_t ddrb_reg;
 	uint8_t portd_reg;
 	uint8_t portb_reg;
 	uint8_t didr0_reg;
+#endif
 
 	void resume(pmu_t mode, period_t period);
 	void clock_switch(pmu_t mode);
@@ -90,7 +91,6 @@ private:
 public:
 	PowerControl();
 	void sleep(pmu_t mode, period_t period = SLEEP_FOREVER);
-	void pullupUnusedPin() {};
 	void setIOCompatible() { DDRE |= 0x10; PORTE &= 0xef; };
 };
 

@@ -27,7 +27,24 @@
 #include "wiring_private.h"
 #include "pins_arduino.h"
 
+uint8_t analog_resbit = 0;
+uint8_t analog_resdir = 0;
 uint8_t analog_reference = DEFAULT;
+
+#if defined(__LGT8F__)
+void analogReadResolution(uint8_t res)
+{
+	if(res > 16) res = 16;
+
+	if(res > 12) {
+		analog_resbit = res - 12;
+		analog_resdir = 0;
+	} else {
+		analog_resbit = 12 - res;
+		analog_resdir = 1;
+	}	
+}
+#endif
 
 void analogReference(uint8_t mode)
 {
@@ -36,18 +53,70 @@ void analogReference(uint8_t mode)
 	// there's something connected to AREF.
 	analog_reference = mode;
 
-#if defined(__LGT8FX8E__)
-	if(analog_reference == INTERNAL2V56) VCAL = GPIOR2;
-	else VCAL = GPIOR1;
+#if defined(__LGT8FX8E__) || defined(__LGT8FX8P__)
+	#if defined(__LGT8FX8E__)
+	if(analog_reference == INTERNAL2V56) {
+		VCAL = VCAL2;
+	} else {
+		VCAL = VCAL1;
+	}
+	#else
+	// set analog reference for ADC/DAC
+	if(analog_reference == EXTERNAL) {
+		DACON = (DACON & 0x0C) | 0x1;
+		if((PMX2 & 0x2) == 0x2) {
+			GPIOR0 = PMX2 & 0xfd;
+			PMX2 = 0x80; 
+			PMX2 = GPIOR0;
+		}
+	} else if(analog_reference == DEFAULT) {
+		DACON &= 0x0C;
+	} else {
+		DACON = (DACON & 0x0C) | 0x2;
+		cbi(ADCSRD, REFS2);
+		if(analog_reference == INTERNAL2V048) {
+			VCAL = VCAL2;	// 2.048V
+		} else if(analog_reference == INTERNAL4V096) {
+			sbi(ADCSRD, REFS2);
+			VCAL = VCAL3;	// 4.096V
+		} else	{
+			VCAL = VCAL1;	// 1.024V
+		}
+	}
+	#endif
 
-	ADMUX |= (analog_reference << 6);
+	ADMUX = (analog_reference << 6);
 #endif
 }
 
-int analogRead(uint8_t pin)
+static uint16_t adcRead()
 {
-	uint16_t advTmp;
-	uint8_t low, high;
+	volatile uint8_t tmp = 0;
+
+	// start the conversion
+	sbi(ADCSRA, ADSC);
+
+	// ADSC is cleared when the conversion finishes
+	while (bit_is_set(ADCSRA, ADSC));
+
+	// read low byte firstly to cause high byte lock.
+	tmp = ADCL;
+
+	return (ADCH << 8) | tmp;
+}
+
+int __analogRead(uint8_t pin)
+{
+	uint16_t pVal;
+#if defined(__LGT8FX8P__)
+	uint16_t nVal;
+	
+	// enable/disable internal 1/5VCC channel
+	ADCSRD &= 0xf0;
+	if(pin == V5D1 || pin == V5D4) { 
+		ADCSRD |= 0x06;
+	}	
+#endif
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 	if (pin >= 54) pin -= 54; // allow for channel or pin numbers
@@ -81,48 +150,53 @@ int analogRead(uint8_t pin)
 	//delay(1);
 
 #if defined(ADCSRA) && defined(ADCL)
-	// start the conversion
-	sbi(ADCSRA, ADSC);
+	#if defined(__LGT8FX8P__)
+	sbi(ADCSRC, SPN);
+	nVal = adcRead();
+	cbi(ADCSRC, SPN);
+	#endif
+	
+	pVal = adcRead();
 
-	// ADSC is cleared when the conversion finishes
-	while (bit_is_set(ADCSRA, ADSC));
-
-	// we have to read ADCL first; doing so locks both ADCL
-	// and ADCH until ADCH is read.  reading ADCL second would
-	// cause the results of each conversion to be discarded,
-	// as ADCL and ADCH would be locked when it completed.
-	low  = ADCL;
-	high = ADCH;
+	#if defined(__LGT8FX8P__)
+	pVal = (pVal + nVal) >> 1;
+	#endif
 #else
 	// we dont have an ADC, return 0
-	low  = 0;
-	high = 0;
+	pVal = 0;
 #endif
 
-	advTmp = (high << 8) | low ;
-
-	// combine the two bytes
+	// gain-error correction
 #if defined(__LGT8FX8E__)
-	if(analog_reference == DEFAULT)
-		advTmp -= (advTmp >> 5);
-	else if(analog_reference == EXTERNAL)
-		advTmp -= (advTmp >> 5); 
-		//advTmp *= 0.97; 
-
+	pVal -= (pVal >> 5);
+#elif defined(__LGT8FX8P__)
+	pVal -= (pVal >> 7);
 #endif
-	return advTmp >> 2;
+	// standard device from atmel
+	return pVal;
+}
+
+int analogRead(uint8_t pin)
+{
+#if defined(__LGT8F__)
+	if(analog_resbit == 0)
+		return __analogRead(pin);
+
+	if(analog_resdir == 1) {
+		return __analogRead(pin) >> analog_resbit;
+	} else {
+		return __analogRead(pin) << analog_resbit;
+	}
+#else
+	return __analogRead(pin);
+#endif
+	
 }
 
 // Right now, PWM output only works on the pins with
 // hardware support.  These are defined in the appropriate
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
-
-#if defined(__LGT8FX8E__)
-#define NOT_DACO(pin) ((pin != DAC0) && (pin != DAC1))
-#else
-#define NOT_DACO(pin) 1
-#endif
 
 void analogWrite(uint8_t pin, int val)
 {
@@ -131,19 +205,17 @@ void analogWrite(uint8_t pin, int val)
 	// writing with them.  Also, make sure the pin is in output mode
 	// for consistenty with Wiring, which doesn't require a pinMode
 	// call for the analog output pins.
-	pinMode(pin, OUTPUT);
-	if (val == 0 && NOT_DACO(pin))
-	{
+	
+	if(LGT_NOT_DACO(pin)) {
+		pinMode(pin, OUTPUT);
+	}
+
+	if (val == 0 && LGT_NOT_DACO(pin)) {
 		digitalWrite(pin, LOW);
-	}
-	else if (val == 255 && NOT_DACO(pin))
-	{
+	} else if (val == 255 && LGT_NOT_DACO(pin)) {
 		digitalWrite(pin, HIGH);
-	}
-	else
-	{
-		switch(digitalPinToTimer(pin))
-		{
+	} else {
+		switch(digitalPinToTimer(pin)) {
 			// XXX fix needed for atmega8
 			#if defined(TCCR0) && defined(COM00) && !defined(__AVR_ATmega8__)
 			case TIMER0A:
@@ -295,15 +367,16 @@ void analogWrite(uint8_t pin, int val)
 				OCR5C = val; // set pwm duty
 				break;
 			#endif
-			#if defined(__LGT8FX8E__)
+			#if defined(__LGT8FX8E__) || defined(__LGT8FX8P__)
 			case LGTDAO0:
 				DAL0 = val; 
 				break;
+			#endif
+			#if defined(__LGT8FX8E__)
 			case LGTDAO1:
 				DAL1 = val;
 				break;
 			#endif
-
 			case NOT_ON_TIMER:
 			default:
 				if (val < 128) {

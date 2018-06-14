@@ -32,22 +32,6 @@
  ******************************************************************************/
 PowerControl::PowerControl()
 {
-#if 0
-	sreg_reg = SREG;
-	cli();
-
-	// disable SWD interface
-	// to release PE0/2
-	MCUSR = 0x80;
-	MCUSR = 0x80;
-
-	// set PE0/2 to input and pullup
-	DDRE &= 0xFA;
-	PORTE |= 0x05;
-
-	// restore status
-	SREG = sreg_reg;
-#endif
 }
 
 /******************************************************************************
@@ -55,22 +39,21 @@ PowerControl::PowerControl()
  ******************************************************************************/
 void PowerControl::sleep(pmu_t mode, period_t period)
 {
-	uint8_t btmp;
+	uint8_t __bk_sreg;
 
 	// save status
 	pmcr_reg = PMCR;
 	clkpr_reg = CLKPR;
 	ldocr_reg = LDOCR;
 	wdtcr_reg = WDTCSR;
+
+#if defined(__LGT8FX8E__)
 	adcsra_reg = ADCSRA;
 	ddrd_reg = DDRD;
 	portd_reg = PORTD;
 	ddrb_reg = DDRB;
 	portb_reg = PORTB;
 	didr0_reg = DIDR0;
-
-	sreg_reg = SREG;
-	cli();
 
 	DIDR0 = 0xff;
 	ADCSRA = 0;
@@ -79,6 +62,10 @@ void PowerControl::sleep(pmu_t mode, period_t period)
 	DDRB &= 0xf9;
 	PORTD |= 0x20;
 	PORTB |= 0x06;
+#endif
+
+	__bk_sreg = SREG;
+	cli();
 
 	// switch clock to rc32k if necessary
 	clock_switch(mode);
@@ -90,6 +77,7 @@ void PowerControl::sleep(pmu_t mode, period_t period)
 	// bring mcu to sleep mode
 	do_sleep(mode);
 
+#if defined(__LGT8FX8E__)
 	// restore ADCSRA
 	ADCSRA = adcsra_reg;
 	DIDR0 = didr0_reg;
@@ -99,12 +87,13 @@ void PowerControl::sleep(pmu_t mode, period_t period)
 	PORTB = portb_reg;
 	DDRD = ddrd_reg;
 	DDRB = ddrb_reg;
+#endif
 
 	// restore setting after wakeup
 	resume(mode, period);	
 
 	// restore GIE
-	SREG = sreg_reg;
+	SREG = __bk_sreg;
 }
 
 // enable wdt for periodly wake-up mode
@@ -160,11 +149,11 @@ void PowerControl::do_sleep(pmu_t mode)
 {
 	if(mode > PM_IDLE) {
 		LDOCR = 0x80;
-		LDOCR = 0x02;	// enable LDO's low power mode
+		LDOCR = 0x02;
 	}
 
 	SMCR = (mode << 1) | 0x1;
-	asm volatile (
+	__asm__ __volatile__ (
 		"sleep	\n\t"
 		"nop	\n\t"
 		"nop	\t\t"
@@ -190,9 +179,9 @@ void PowerControl::resume(pmu_t mode, period_t period)
 
 		// now is working by 32k clock
 		// waiting for crystal stable if needed
-		if((pmcr_reg & 0x20) == 0x20)
-			for(btmp=0x1f; btmp>0; --btmp)
-				asm("nop");
+		if((pmcr_reg & 0x20) == 0x20) {
+			delay(100);
+		}
 
 		// restore system clock settings
 		PMCR = 0x80;

@@ -469,7 +469,7 @@ ISR(TWI_vect)
         twi_rxBuffer[twi_rxBufferIndex] = '\0';
       }
       // sends ack and stops interface for clock stretching
-      twi_stop();
+      //twi_stop();
       // callback to user defined callback
       twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
       // since we submit rx buffer to "wire" library, we can reset it

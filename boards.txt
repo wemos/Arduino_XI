@@ -2,7 +2,28 @@
 
 ##############################################################
 
-xi.name= WEMOS XI
+
+lgt_nano.name= LGT Nano
+lgt_nano.upload.tool=avrdude
+lgt_nano.upload.protocol=arduino
+lgt_nano.upload.maximum_size=29696
+lgt_nano.upload.speed=57600
+lgt_nano.bootloader.tool=avrdude
+lgt_nano.bootloader.high_fuses=0xff
+lgt_nano.bootloader.low_fuses=0xff
+lgt_nano.bootloader.extended_fuses=0x07
+lgt_nano.bootloader.path=lgt8fx8p
+lgt_nano.bootloader.file=lgt8fx8p\optiboot_lgt8f328p.hex
+lgt_nano.bootloader.unlock_bits=0x3f
+lgt_nano.bootloader.lock_bits=0x3f
+lgt_nano.build.mcu=atmega328p
+lgt_nano.build.f_cpu=16000000L
+lgt_nano.build.core=lgt8f
+lgt_nano.build.variant=lgt8fx8p
+lgt_nano.build.board=AVR_LARDU_328E
+
+
+xi.name= WEMOS XI (Retired)
 xi.upload.tool=avrdude
 xi.upload.protocol=arduino
 xi.upload.maximum_size=29696

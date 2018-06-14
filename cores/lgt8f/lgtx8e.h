@@ -69,9 +69,35 @@
 
 #define ADTMR	(*((volatile unsigned char *)0x7D))
 
+// PCICR
 #define PCIE3	3
-#define PCMSK3	(*((volatile unsigned char *)0x73))
+#define PCIE4	4
 
+// PCIFR
+#define	PCIF3	3
+#define	PCIF4	4
+
+#define PCMSK3	(*((volatile unsigned char *)0x73))
+#define	PCINT31	7
+#define	PCINT30	6
+#define	PCINT29	5
+#define	PCINT28	4
+#define	PCINT27	3
+#define	PCINT26	2
+#define	PCINT25	1
+#define	PCINT24	0
+
+#define PCMSK4	(*((volatile unsigned char *)0x74))
+#define	PCINT39	7
+#define	PCINT38	6
+#define	PCINT37	5
+#define	PCINT36	4
+#define	PCINT35	3
+#define	PCINT34	2
+#define	PCINT33	1
+#define	PCINT32	0
+
+// CLKPR
 #define CLKOE	5
 #define CLKOE1	6
 #define CLKOE0	5

@@ -37,14 +37,29 @@ void pinMode(uint8_t pin, uint8_t mode)
 #if defined(__LGT8FX8E__)
 	if(mode == ANALOG) {
 		if(pin == DAC0) {
+			GPIOR0 = IOCR | 0x08;
 			IOCR = 0x80;
-			IOCR |= 0x08;
+			IOCR = GPIOR0;
 			ACSR |= 0x40;		
 		} else if(pin == DAC1) {
+			GPIOR0 = IOCR | 0x10;
 			IOCR = 0x80;
-			IOCR |= 0x10;
+			IOCR = GPIOR0;
 			AC1SR |= 0x40;
 		}
+	}
+#elif defined(__LGT8FX8P__)
+	if((mode == ANALOG) && (pin == DAC0)) { // enable DAC
+		DACON |= 0xC;
+	} else if(pin == DAC0) {
+		DACON = 0x3;	// disable DAC
+	} else if(pin == E0 || pin == E2) {
+		MCUSR = 0xff;
+		MCUSR = 0xff;	// disable SWD/SWC for E0/E2	
+	} else if(pin == E6) {
+		GPIOR0 = PMX2 | 0x2;
+		PMX2 = 0x80;	
+		PMX2 = GPIOR0;	// enable PE6 for GPIO
 	}
 #endif
 
@@ -66,7 +81,7 @@ void pinMode(uint8_t pin, uint8_t mode)
 		*reg &= ~bit;
 		*out |= bit;
 		SREG = oldSREG;
-	} else {
+	} else if(LGT_NOT_DACO(pin) || (mode == OUTPUT)) {
 		uint8_t oldSREG = SREG;
                 cli();
 		*reg |= bit;
@@ -193,8 +208,15 @@ int digitalRead(uint8_t pin)
 
 void digitalToggle(uint8_t pin)
 {
-	if(digitalRead(pin) == LOW)
+#if defined(__LGT8FX8P__)
+	uint8_t bit = digitalPinToBitMask(pin);
+	uint8_t port = digitalPinToPort(pin);
+	*portInputRegister(port) = bit;
+#elif defined(__LGT8FX8E__)
+	if(digitalRead(pin) == LOW) {
 		digitalWrite(pin, HIGH);
-	else
+	} else {
 		digitalWrite(pin, LOW);
+	}
+#endif
 }

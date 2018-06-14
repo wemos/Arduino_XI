@@ -25,6 +25,10 @@
 #ifndef __LGT8FX8E__
 #define	__LGT8FX8E__
 
+#ifndef	__LGT8F__
+#define __LGT8F__
+#endif
+
 #include "lgtx8e.h"
 #ifndef __LGT8F_SSOP20__
 #define __LGT8F_SSOP20__
