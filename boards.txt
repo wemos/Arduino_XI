@@ -22,6 +22,28 @@ lgt_nano.build.core=lgt8f
 lgt_nano.build.variant=lgt8fx8p
 lgt_nano.build.board=AVR_LARDU_328E
 
+##############################################################
+
+lgt_pico.name= LGT Pico
+lgt_pico.upload.tool=avrdude
+lgt_pico.upload.protocol=arduino
+lgt_pico.upload.maximum_size=29696
+lgt_pico.upload.speed=57600
+lgt_pico.bootloader.tool=avrdude
+lgt_pico.bootloader.high_fuses=0xff
+lgt_pico.bootloader.low_fuses=0xff
+lgt_pico.bootloader.extended_fuses=0x07
+lgt_pico.bootloader.path=lgt8fx8ps20
+lgt_pico.bootloader.file=lgt8fx8ps20\optiboot_lgt8f328ps20.hex
+lgt_pico.bootloader.unlock_bits=0x3f
+lgt_pico.bootloader.lock_bits=0x3f
+lgt_pico.build.mcu=atmega328p
+lgt_pico.build.f_cpu=16000000L
+lgt_pico.build.core=lgt8f
+lgt_pico.build.variant=lgt8fx8ps20
+lgt_pico.build.board=AVR_LARDU_328E
+
+##############################################################
 
 xi.name= WEMOS XI (Retired)
 xi.upload.tool=avrdude
