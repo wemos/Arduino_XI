@@ -1,7 +1,7 @@
 Arduino core for WEMOS XI Boards 
 ===========================================
 ### WEMOS XI Boards
-- [WEMOS XI](https://wemos.cc "WEMOS XI")
+- [LGT Nano](https://wiki.wemos.cc/products:xi:lgt_nano)
 
 ### Installation
 - Install Arduino IDE
