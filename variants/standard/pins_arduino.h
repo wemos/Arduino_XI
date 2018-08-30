@@ -167,18 +167,27 @@ static const uint8_t A11 = 26;
 #define	D37	37	/* PF5 */
 #define	D38	38	/* PF6 */
 #define	D39	39	/* PF7 */
-#else
+
+#else// LQFP-32 & SSOP-20
+
 #define E0	22
 #define E2	23
 #define E4	24
 #define E5	25
 #define E6	26
 
+#define B6	27
+#define B7	28
+
 #define D22	22 	/* PE0 */
 #define D23	23	/* PE2 */
 #define D24	24	/* PE4 */
 #define D25	25	/* PE5 */
 #define D26	26	/* PE6 */
+
+#define D27	27	/* PB6 */
+#define D28	28	/* PB7 */
+
 #endif
 #endif
 
@@ -326,6 +335,10 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PE, /* 24 */
 	PE, /* 25 */
 	PE, /* 26 */
+
+	PB, /* 27 */
+	PB, /* 28 */
+
 #endif
 #endif
 };
@@ -379,6 +392,10 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	_BV(4), /* 24, port E4 */
 	_BV(5), /* 25, port E5 */
 	_BV(6), /* 26, port E6 */
+
+	_BV(6), /* 27, port B6 */
+	_BV(7), /* 28, port B7 */
+
 #endif
 #endif
 };
