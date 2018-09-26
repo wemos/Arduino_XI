@@ -55,6 +55,8 @@ class T1_PWM
     void init(uint32_t freq);
     void changeFreq(uint32_t freq);
     void changeDuty(uint8_t pin, float duty);
+    void stop();
+    void start();
 
 };
 

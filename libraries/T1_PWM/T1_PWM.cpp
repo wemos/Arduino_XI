@@ -108,7 +108,7 @@ void T1_PWM::changeFreq(uint32_t freq)
     t1_icr1 = 16000000 / 2 / pwm_freq;
   }
 
-  TCCR1B = t1_cs1 | (((TC1_WGM1 & 0xc) >> 2) << WGM12) | (TC1_ICNC1 << ICNC1) | (TC1_ICES1 << ICES1);
+  //TCCR1B = t1_cs1 | (((TC1_WGM1 & 0xc) >> 2) << WGM12) | (TC1_ICNC1 << ICNC1) | (TC1_ICES1 << ICES1);
 
   ICR1H = (t1_icr1 >> 8) & 0xff;
   ICR1L = t1_icr1 & 0xff;
@@ -208,6 +208,16 @@ void T1_PWM::changeDuty(uint8_t pin, float duty)
 
 #endif
   }
+}
+
+void T1_PWM::stop()
+{
+  TCCR1B = 0 | (((TC1_WGM1 & 0xc) >> 2) << WGM12) | (TC1_ICNC1 << ICNC1) | (TC1_ICES1 << ICES1);
+}
+
+void T1_PWM::start()
+{
+  TCCR1B = t1_cs1 | (((TC1_WGM1 & 0xc) >> 2) << WGM12) | (TC1_ICNC1 << ICNC1) | (TC1_ICES1 << ICES1);
 }
 
 T1_PWM T1PWM;

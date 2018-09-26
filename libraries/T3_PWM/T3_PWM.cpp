@@ -111,8 +111,8 @@ void T3_PWM::changeFreq(uint32_t freq)
     t3_icr3 = 16000000 / 2 / pwm_freq;
   }
 
-  // t3_icr3 = 16000000 / 2 / (8^(t3_cs3-1)) / pwm_freq;
-  TCCR3B = t3_cs3 | (((TC3_WGM3 & 0xc) >> 2) << WGM32) | (TC3_ICNC3 << ICNC3) | (TC3_ICES3 << ICES3);
+
+  //TCCR3B = t3_cs3 | (((TC3_WGM3 & 0xc) >> 2) << WGM32) | (TC3_ICNC3 << ICNC3) | (TC3_ICES3 << ICES3);
 
   ICR3H = (t3_icr3 >> 8) & 0xff;
   ICR3L = t3_icr3 & 0xff;
@@ -172,5 +172,16 @@ void T3_PWM::changeDuty(uint8_t pin, float duty)
 #endif
   }
 }
+
+void T3_PWM::stop()
+{
+  TCCR3B = 0 | (((TC3_WGM3 & 0xc) >> 2) << WGM32) | (TC3_ICNC3 << ICNC3) | (TC3_ICES3 << ICES3);
+}
+
+void T3_PWM::start()
+{
+  TCCR3B = t3_cs3 | (((TC3_WGM3 & 0xc) >> 2) << WGM32) | (TC3_ICNC3 << ICNC3) | (TC3_ICES3 << ICES3);
+}
+
 
 T3_PWM T3PWM;
